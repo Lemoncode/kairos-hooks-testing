@@ -100,7 +100,7 @@ a ejecutar el código…
 
 **React.useEffect**
 
-En su primer parametro un código que puede contener sideffects
+En su primer parámetro un código que puede contener sideffects
 (una llamada a servidor, un setTimeout...).
 
 Si no le informamos más parametros, esta función se ejecutara siempre
@@ -150,6 +150,8 @@ React.useEffect(() => {
 
 Si ejecutamos este código podemos ver como lanzamos nuestra aplicación
 y después un segundo y medio se cambia el nombre de usuario a _John_.
+
+> Ojo, en create-reac-app por defecto en modo desarrollo vas con strict mode y este _useEffect_ se ejecutaría dos veces, más info: https://es.reactjs.org/docs/strict-mode.html
 
 Esto es sólo el comienzo, en los siguientes ejemplos seguiremos trabajando
 con _React.useEffect_.
