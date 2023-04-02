@@ -1,16 +1,24 @@
 import React from "react";
-import { useDebounce } from 'use-debounce';
 
-export const MyComponent = () => {
+const useUserCollection = () => {
   const [filter, setFilter] = React.useState("");
   const [userCollection, setUserCollection] = React.useState([]);
-  const [debouncedFilter] =   useDebounce(filter, 500);
+
   // Load full list when the component gets mounted and filter gets updated
-  React.useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/users?name_like=${debouncedFilter}`)
+  const loadUsers = () =>
+    fetch(`https://jsonplaceholder.typicode.com/users?name_like=${filter}`)
       .then((response) => response.json())
       .then((json) => setUserCollection(json));
-  }, [debouncedFilter]);
+
+  return { userCollection, loadUsers, filter, setFilter };
+};
+
+export const MyComponent = () => {
+  const { userCollection, loadUsers, filter, setFilter } = useUserCollection();
+
+  React.useEffect(() => {
+    loadUsers();
+  }, [filter]);
 
   return (
     <div>
