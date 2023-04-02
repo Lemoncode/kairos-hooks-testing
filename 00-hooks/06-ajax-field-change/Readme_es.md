@@ -141,7 +141,7 @@ jugar actualizando a dos tiempos:
   un retraso.
 
 Esto nos puede servir cuando tenemos operaciones que pueden
-tardar más (por ejemplo pedir listad de fotos a una api , versus
+tardar más (por ejemplo pedir listado de fotos a una api , versus
 rellenar el texto de busqueda que queremos).
 
 Vamos a cambiar el uso de useDebounce por useDeferredValue:
