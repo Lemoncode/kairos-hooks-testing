@@ -1,43 +1,25 @@
 import React from "react";
+import { useDebounce } from 'use-debounce';
 
 export const MyComponent = () => {
-  const [visible, setVisible] = React.useState(false);
-
-  return (
-    <>
-      {visible && <MyChildComponent />}
-      <button onClick={() => setVisible(!visible)}>
-        Toggle Child component visibility
-      </button>
-    </>
-  );
-};
-
-const MyChildComponent = () => {
-  const [userInfo, setUserInfo] = React.useState({
-    name: "John",
-    lastname: "Doe",
-  });
-
+  const [filter, setFilter] = React.useState("");
+  const [userCollection, setUserCollection] = React.useState([]);
+  const [debouncedFilter] =   useDebounce(filter, 500);
+  // Load full list when the component gets mounted and filter gets updated
   React.useEffect(() => {
-    console.log("A. Called right after every render");
-
-    return () => console.log("B. Cleanup function called after every render");
-  });
+    fetch(`https://jsonplaceholder.typicode.com/users?name_like=${debouncedFilter}`)
+      .then((response) => response.json())
+      .then((json) => setUserCollection(json));
+  }, [debouncedFilter]);
 
   return (
     <div>
-      <h3>
-        {userInfo.name} {userInfo.lastname}
-      </h3>
-      <input
-        value={userInfo.name}
-        onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
-      />
-      <input
-        value={userInfo.lastname}
-        onChange={(e) => setUserInfo({ ...userInfo, lastname: e.target.value })}
-      />
+      <input value={filter} onChange={(e) => setFilter(e.target.value)} />
+      <ul>
+        {userCollection.map((user, index) => (
+          <li key={index}>{user.name}</li>
+        ))}
+      </ul>
     </div>
   );
 };

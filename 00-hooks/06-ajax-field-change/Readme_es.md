@@ -21,7 +21,7 @@ así llamadas innecesarias).
 npm install
 ```
 
-- Vamos abrir el fichero _demo.js_ y vamos añadir una entrada en el
+- Vamos abrir el fichero _demo.tsx_ y vamos añadir una entrada en el
   estado que almacene el filtro actual de busqueda, y otra en la que almacene
   una lista de usuarios.
 
@@ -87,7 +87,7 @@ React.useEffect(() => {
 }, [filter]);
 ```
 
-- Si ejecutamos este código podemos ver que la opcíon de filtrado funciona.
+- Si ejecutamos este código podemos ver que la opción de filtrado funciona.
 
 ```bash
 npm start
