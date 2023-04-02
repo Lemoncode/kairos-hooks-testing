@@ -99,9 +99,7 @@ _./src/demo.tsx_
 npm start
 ```
 
-¿ Qué es lo que está haciendo _React.memo_? Esta aplicando el patrón memorize, recuerda
-para la propiedad name el puntero del último render, cuando llega el siguiente los compara
-y si son iguales devuelve el render del componente cacheado.
+¿ Qué es lo que está haciendo _React.memo_? Esta aplicando el patrón memorize, recuerda para la propiedad name el puntero del último render, cuando llega el siguiente los compara y si son iguales devuelve el render del componente cacheado.
 
 # ¿Te apuntas a nuestro máster?
 
