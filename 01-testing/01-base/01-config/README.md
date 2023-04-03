@@ -13,7 +13,7 @@ Summary steps:
 
 # Steps to build it
 
-- `npm install` to install previous sample packages:
+`npm install` to install previous sample packages:
 
 ```bash
 npm install
@@ -38,7 +38,7 @@ npm install jest @types/jest --save-dev
 
 # Config
 
-- Jest test commands:
+Jest test commands:
   - `npm test`: to single run
   - `npm run test:watch`: to run all specs after changes.
 
@@ -72,13 +72,13 @@ npm install jest @types/jest --save-dev
 
 # Dummy spec
 
-- Let's launch tests in watch mode:
+Let's launch tests in watch mode:
 
 ```bash
 npm run test:watch
 ```
 
-- Adding success spec:
+Adding success spec:
 
 ### ./src/dummy.spec.ts
 
@@ -95,7 +95,7 @@ describe('dummy specs', () => {
 });
 ```
 
-- Adding failed spec:
+Adding failed spec:
 
 ### ./src/dummy.spec.ts
 
@@ -142,7 +142,7 @@ export default {
 >
 > We will add some configuration in next examples when needed
 
-- And use that file:
+And use that file:
 
 ### ./package.json
 
@@ -159,7 +159,7 @@ export default {
 }
 ```
 
-- Running specs again:
+Running specs again:
 
 ```bash
 npm run test:watch
