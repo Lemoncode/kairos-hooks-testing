@@ -1,13 +1,12 @@
-# 05 Async
+# 04 TDD
 
-In this example we are going to learn test async code.
+In this example we are going to apply Test Driven Development while we are implementing the app.
 
-We will start from `04-tdd`.
+We will start from `03-debug`.
 
 Summary steps:
 
-- Handle `getMembers` errors.
-- Test async code.
+- Create the unit test before implementation.
 
 # Steps to build it
 
@@ -17,67 +16,81 @@ Summary steps:
 npm install
 ```
 
-- This time, we want to handle `getMembers` errors:
+Let's remove all `calculator` stuff.
+  - `./src/business/calculator.business.ts`
+  - `./src/business/index.ts`
+  - `./src/calculator.spec.ts`
+  - `./src/calculator.ts`
+  - `./src/second.spec.ts`
 
-> 403: API rate limit exceeded
-> 503: Service unavailable
+Create a simple `app` to retrieve data from `github`:
+
+### ./src/api-model.ts
+
+```javascript
+export interface Member {
+  id: number;
+  login: string;
+  avatar_url: string;
+}
+```
 
 ### ./src/api.ts
 
-```diff
-- import Axios from 'axios';
-+ import Axios, { AxiosError } from 'axios';
+```javascript
+import Axios from 'axios';
 import { Member } from './api-model';
 
 const url = 'https://api.github.com/orgs/lemoncode/members';
 
 export const getMembers = (): Promise<Member[]> =>
-- Axios.get(url).then(({ data }) => data);
-+ Axios.get(url)
-+   .then((response) => response.data)
-+   .catch((error: AxiosError) => {
-+     switch (error.response.status) {
-+       case 403:
-+         throw 'Too much Github API calls!';
-+       case 503:
-+         throw 'Unavailable service';
-+     }
-+   });
-
+  Axios.get(url).then((response) => response.data)
 ```
 
-- Update app:
+Let's use it:
 
 ### ./src/app.tsx
 
 ```diff
 import * as React from 'react';
-import { getMembers } from './api';
-import { mapToMemberVMList } from './mapper';
++ import { getMembers } from './api';
 
 export const App: React.FunctionComponent = () => {
-  React.useEffect(() => {
-    getMembers()
-      .then(members => {
-        console.log(mapToMemberVMList(members));
--     });
-+     })
-+     .catch(error => console.log(error));
-  }, []);
++ React.useEffect(() => {
++   getMembers().then(members => {
++     console.log(members);
++   });
++ }, []);
 
-  return <h1>React testing by sample</h1>;
+  return <h1>05-Testing / 01 React</h1>;
 };
 
 ```
 
-- Let's start to test it:
+Run it:
 
-### ./src/api.spec.ts
+```bash
+npm start
+```
+
+We are retrieving too many properties, let's create a `view-model`:
+
+### ./src/view-model.ts
 
 ```javascript
-import { getMembers } from './api';
+export interface Member {
+  id: string;
+  login: string;
+  avatarUrl: string;
+}
+```
 
-describe('api specs', () => {
+What do we need now? We need a `mapper` to map from `api-model` to `view-model`. Since, we are going to apply TDD, we will start from `spec` before:
+
+### ./src/mapper.spec.ts
+
+```javascript
+describe('mapper specs', () => {
   it('', () => {
     // Arrange
     // Act
@@ -86,217 +99,263 @@ describe('api specs', () => {
 });
 ```
 
-- should return members when it resolves the request successfully:
+Should return empty array when it feeds undefined:
 
-### ./src/api.spec.ts
+### ./src/mapper.spec.ts
 
 ```diff
-+ import Axios from 'axios';
-+ import { Member } from './api-model';
-import { getMembers } from './api';
++ import * as apiModel from './api-model';
++ import * as viewModel from './view-model';
 
-describe('api specs', () => {
+describe('mapper specs', () => {
 - it('', () => {
-+ it('should return members when it resolves the request successfully', () => {
++ it('should return empty array when it feeds undefined', () => {
     // Arrange
-+   const members: Member[] = [
-+     {
-+       id: 1,
-+       login: 'test login',
-+       avatar_url: 'test avatar_url',
-+     },
-+   ];
-
-+   const getStub = jest.spyOn(Axios, 'get').mockResolvedValue({
-+     data: members,
-+   });
++   const members: apiModel.Member[] = undefined;
 
     // Act
-+   const result = getMembers();
++   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
 
     // Assert
-+   expect(getStub).toHaveBeenCalledWith(
-+     'https://api.github.com/orgs/lemoncode/members'
-+   );
-+   expect(result).toEqual(members);
++   expect(result).toEqual([]);
   });
 });
 
 ```
 
-- Why is it failing? Because it's an async code and we have to tell `jest` that it has to wait to resolve `promise`:
+Create the minimum implementation to pass the test:
 
-### ./src/api.spec.ts
+### ./src/mapper.ts
 
-```diff
-import Axios from 'axios';
-import { Member } from './api-model';
-import { getMembers } from './api';
+```javascript
+import * as apiModel from './api-model';
+import * as viewModel from './view-model';
 
-describe('api specs', () => {
-- it('should return members when it resolves the request successfully', () => {
-+ it('should return members when it resolves the request successfully', done => {
-    // Arrange
-    const members: Member[] = [
-      {
-        id: 1,
-        login: 'test login',
-        avatar_url: 'test avatar_url',
-      },
-    ];
-
-    const getStub = jest.spyOn(Axios, 'get').mockResolvedValue({
-      data: members,
-    });
-
-    // Act
--   const result = getMembers();
-+   getMembers().then(result => {
-      // Assert
-      expect(getStub).toHaveBeenCalledWith(
-        'https://api.github.com/orgs/lemoncode/members'
-      );
-      expect(result).toEqual(members);
-+     done();
-+   });
-  });
-});
-
+export const mapMemberListFromApiToVm = (
+  members: apiModel.Member[]
+): viewModel.Member[] => [];
 ```
 
-- A second approach is using `async/await`:
+Let's update the spec:
 
-> [Jest testing async code](https://jestjs.io/docs/en/asynchronous.html)
-
-### ./src/api.spec.ts
+### ./src/mapper.spec.ts
 
 ```diff
-import Axios from 'axios';
-import { Member } from './api-model';
-import { getMembers } from './api';
-
-describe('api specs', () => {
-- it('should return members when it resolves the request successfully', done => {
-+ it('should return members when it resolves the request successfully', async () => {
-    // Arrange
-    const members: Member[] = [
-      {
-        id: 1,
-        login: 'test login',
-        avatar_url: 'test avatar_url',
-      },
-    ];
-
-    const getStub = jest.spyOn(Axios, 'get').mockResolvedValue({
-      data: members,
-    });
-
-    // Act
--   getMembers().then(result => {
-+   const result = await getMembers();
-
-      // Assert
-      expect(getStub).toHaveBeenCalledWith(
-        'https://api.github.com/orgs/lemoncode/members'
-      );
-      expect(result).toEqual(members);
--     done();
--   });
-  });
-});
-
-```
-
-- should throw an error with "Too much Github API calls!" when it rejects the request with 403 status code:
-
-### ./src/api.spec.ts
-
-```diff
-- import Axios from 'axios';
-+ import Axios, { AxiosError } from 'axios';
-import { Member } from './api-model';
-import { getMembers } from './api';
+import * as apiModel from './api-model';
+import * as viewModel from './view-model';
++ import { mapMemberListFromApiToVm } from './mapper';
 ...
 
-+ it('should throw an error with "Too much Github API calls!" when it rejects the request with 403 status code', async () => {
+```
+
+Should return empty array when it feeds null:
+
+### ./src/mapper.spec.ts
+
+```diff
+...
+
++ it('should return empty array when it feeds null', () => {
 +   // Arrange
-+   const getStub = jest.spyOn(Axios, 'get').mockRejectedValue({
-+     response: {
-+       status: 403,
-+     },
-+   } as AxiosError);
++   const members: apiModel.Member[] = null;
 
 +   // Act
-+   try {
-+     const result = await getMembers();
-+   } catch (error) {
-+     // Assert
-+     expect(getStub).toHaveBeenCalledWith(
-+       'https://api.github.com/orgs/lemoncode/members'
-+     );
-+     expect(error).toEqual('Too much Github API calls!');
-+   }
-+ });
-...
++   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
 
-```
-
-- should throw an error with "Unavailable service" when it rejects the request with 503 status code:
-
-### ./src/api.spec.ts
-
-```diff
-...
-
-+ it('should throw an error with "Unavailable service" when it rejects the request with 503 status code', async () => {
-+   // Arrange
-+   const getStub = jest.spyOn(Axios, 'get').mockRejectedValue({
-+     response: {
-+       status: 503,
-+     },
-+   } as AxiosError);
-
-+   // Act
-+   try {
-+     const result = await getMembers();
-+   } catch (error) {
-+     // Assert
-+     expect(getStub).toHaveBeenCalledWith(
-+       'https://api.github.com/orgs/lemoncode/members'
-+     );
-+     expect(error).toEqual('Unavailable service');
-+   }
-+ });
-...
-
-```
-
-- should return undefined when it rejects the request with different status code:
-
-### ./src/api.spec.ts
-
-```diff
-...
-
-+ it('should return undefined when it rejects the request with different status code', async () => {
-+   // Arrange
-+   const getStub = jest.spyOn(Axios, 'get').mockRejectedValue({
-+     response: {
-+       status: 404,
-+     },
-+   } as AxiosError);
-
-+   // Act
-+   const result = await getMembers();
 +   // Assert
-+   expect(getStub).toHaveBeenCalledWith(
-+     'https://api.github.com/orgs/lemoncode/members'
-+   );
-+   expect(result).toBeUndefined();
++   expect(result).toEqual([]);
 + });
+});
+
+```
+
+Should return empty array when it feeds empty array:
+
+### ./src/mapper.spec.ts
+
+```diff
+...
+
++ it('should return empty array when it feeds empty array', () => {
++   // Arrange
++   const members: apiModel.Member[] = [];
+
++   // Act
++   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
++   // Assert
++   expect(result).toEqual([]);
++ });
+});
+
+```
+
+Yep, we are ready to deploy to production :^). Should return array one mapped item when it feed array with one item:
+
+### ./src/mapper.spec.ts
+
+```diff
+...
+
++ it('should return array one mapped item when it feed array with one item', () => {
++   // Arrange
++   const members: apiModel.Member[] = [
++     { id: 1, login: 'test login', avatar_url: 'test avatar' },
++   ];
+
++   // Act
++   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
++   // Assert
++   const expectedResult: viewModel.Member[] = [
++     {
++       id: '1',
++       login: 'test login',
++       avatarUrl: 'test avatar',
++     },
++   ];
++   expect(result).toEqual(expectedResult);
++ });
+});
+
+```
+
+Let's update the implementation:
+
+### ./src/mapper.ts
+
+```diff
+import * as apiModel from './api-model';
+import * as viewModel from './view-model';
+
+export const mapMemberListFromApiToVm = (
+  members: apiModel.Member[]
+- ): viewModel.Member[] => [];
++ ): viewModel.Member[] => members.map(member => mapMemberFromApiToVm(member));
+
++ const mapMemberFromApiToVm = (member: apiModel.Member): viewModel.Member => ({
++   id: member.id.toString(),
++   login: member.login,
++   avatarUrl: member.avatar_url,
++ });
+
+```
+
+We've break two specs! How to solve this one?. Let's start with undefined:
+
+### ./src/mapper.ts
+
+```diff
+
+export const mapMemberListFromApiToVm = (
+  members: apiModel.Member[]
+- ): viewModel.Member[] => members.map(member => mapMemberFromApiToVm(member));
++ ): viewModel.Member[] =>
++   members !== undefined
++   ? members.map(member => mapMemberFromApiToVm(member))
++   : [];
 ...
 
 ```
+
+Let's continue with null:
+
+### ./src/mapper.ts
+
+```diff
+...
+
+export const mapMemberListFromApiToVm = (
+  members: apiModel.Member[]
+): viewModel.Member[] =>
+-  members !== undefined
++  members !== undefined && members !== null
+    ? members.map(member => mapMemberFromApiToVm(member))
+    : [];
+...
+
+```
+
+Or if we know about JavaScript Array [isArray](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray) method:
+
+### ./src/mapper.ts
+
+```diff
+...
+
+export const mapMemberListFromApiToVm = (
+  members: apiModel.Member[]
+): viewModel.Member[] =>
+- members !== undefined && members !== null
++ Array.isArray(members)
+    ? members.map(member => mapMemberFromApiToVm(member))
+    : [];
+...
+
+```
+
+Another tool provided by jest is the [each](https://jestjs.io/docs/api#testeachtablename-fn-timeout) method.
+
+> We could have some issues typing arrays.
+>
+> That's why the `any` casting
+
+### ./src/mapper.spec.ts
+
+```diff
+...
+
+describe('mapper specs', () => {
++ it.each<apiModel.Member[]>([undefined, null, []])(
++   'should return empty array when it feeds members equals %p',
++   (members: any) => {
++     // Arrange
+
++     // Act
++     const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
++     // Assert
++     expect(result).toEqual([]);
++   }
++ );
+
+- it('should return empty array when it feeds undefined', () => {
+-   // Arrange
+-   const members: apiModel.Member[] = undefined;
+
+-   // Act
+-   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
+-   // Assert
+-   expect(result).toEqual([]);
+- });
+
+- it('should return empty array when it feeds null', () => {
+-   // Arrange
+-   const members: apiModel.Member[] = null;
+
+-   // Act
+-   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
+-   // Assert
+-   expect(result).toEqual([]);
+- });
+
+- it('should return empty array when it feeds empty array', () => {
+-   // Arrange
+-   const members: apiModel.Member[] = [];
+
+-   // Act
+-   const result: viewModel.Member[] = mapMemberListFromApiToVm(members);
+
+-   // Assert
+-   expect(result).toEqual([]);
+- });
+
+...
+
+```
+
 
 # About Basefactor + Lemoncode
 
