@@ -95,6 +95,7 @@ Should update credential when it calls setUser:
 
 ```diff
 ...
+
 + it('should update credential when it calls setCredential', () => {
 +   // Arrange
 +   const newCredential: Credential = { name: 'admin', password: 'test' };
