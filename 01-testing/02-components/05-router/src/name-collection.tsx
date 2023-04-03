@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { getNameCollection } from './name-api';
 
 export const NameCollection: React.FC = () => {
@@ -15,7 +16,11 @@ export const NameCollection: React.FC = () => {
       {nameCollection.length === 0 ? (
         <span>No data to display</span>
       ) : (
-        nameCollection.map((name) => <li key={name}>{name}</li>)
+        nameCollection.map((name) => (
+          <li key={name}>
+            <Link to={`/users/${name}`}>{name}</Link>
+          </li>
+        ))
       )}
     </ul>
   );
