@@ -78,14 +78,14 @@ export const MyComponent = () => {
   si el control se repinta o no, este control se repinta siempre porque
   en la propiedad _onChange_ estamos creando una función nueva en cada render.
 
-Aquí podríams estar tentados a usar _react.useCallback_, ¿ Existe otra manera
+Aquí podríamos estar tentados a usar _react.useCallback_, ¿ Existe otra manera
 de tratar esto? Vamos a ver la propuesta que ofrece _useReducer_
 
 En _useReducer_ agrupamos un conjunto de funcionalidad
 
 - Por un lado tenemos el estado (los datos).
 - Por otro lado tenemos acciones (que contiene un identificador y uno parámetro con información) que se lanzan utilizando un dispatcher.
-- Y esas acciones actualizan el estado en un reducer (un reducer es una función que acepta dos parametros el estado anterior y la acción, y te devuelve un nuevo estado)
+- Y esas acciones actualizan el estado en un reducer (un reducer es una función que acepta dos parámetros el estado anterior y la acción, y te devuelve un nuevo estado)
 - ¿En qué consiste esto? En pensar que el estado actual es como el fotograma de una película, lo fijamos, nos llega una petición de cambio (con la acción) y se genera un nuevo fotograma en base al anterior y al cambio que se quiere hacer, si no hay cambio se devuelve el mismo que había antes.
 
 Vamos primero a definir nuestro _reducer_
