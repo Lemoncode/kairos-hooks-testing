@@ -1,25 +1,24 @@
 # 10 useReducer
 
-## Resume
+## Resumen
 
-This example takes as a starting point _09-pure-component-callback_.
+Este ejemplo toma como punto de partida el ejemplo _09-pure-component-callback_.
 
-In the previous sample we worked around the issue with the function
-that was getting updated on every render by using _useCallback_, this
-approach is cool, but for more complex scenarios you may want to organize
-your code using a different approach. Another way of solving this issue
-is using _useReducer_, this hook will return a _dispatch_
-function that remains stable.
+Ya hemos visto la potencia de los hooks, pero en ciertos escenarios en los
+que puedes tener mucha lógica y muchos niveles de subcomponentes, pueden que te lleve a tener problemas de mantenibilidad, para ciertos escenarios podemos hacer uso del hook _useReducer_, inspirado en el patrón _Redux_.
 
-# Steps
+## Paso a Paso
 
-- First we copy the previous example, and do a _npm install_
+- Primero copiamos el ejemplo anterior, y hacemos un _npm install_
 
 ```bash
 npm install
 ```
 
-- Let's open the _demo.tsx_. We will create a parent that will have information on the first and the last name of a person, and we are going to create a child component that will serve us to edit the name field.
+- Vamos a abrir el fichero _demo.tsx_ y crear un componente padre
+  que va a tener información del nombre y apellido de una persona,
+  y vamos a crear un componente hijo que nos va a servir para editar
+  el campo nombre.
 
 _./src/demo.tsx_
 
@@ -75,20 +74,24 @@ export const MyComponent = () => {
 };
 ```
 
-- In the child component we have a _console.log_ to warn us if the control is repainted or not, this control is always repainted because in the _onChange_ property we are creatin a new function in each render.
+- En el componente hijo hemos metido un _console.log_ para que nos avise
+  si el control se repinta o no, este control se repinta siempre porque
+  en la propiedad _onChange_ estamos creando una función nueva en cada render.
 
-Here we might bo more tempted to use _React.useCallback_, is there antoher way to try this? Let's see the proposal offered by _useReducer_.
+Aquí podríams estar tentados a usar _react.useCallback_, ¿ Existe otra manera
+de tratar esto? Vamos a ver la propuesta que ofrece _useReducer_
 
-En _useReducer_ we group a set of functionality.
+En _useReducer_ agrupamos un conjunto de funcionalidad
 
-- On the one hand we have the state (the data).
-- On the other hand we have actions (contains an identifier and a parameter with information) that are launched using a dispatcher.
-- And those actions update the state in a reducer (a reducer is a function that accepts two parameters the previus state and the action, and returns you a new state).
-- Where is this? In thinking that the current state is like a frame of a movie, we fix it, we receive a request for change (with the action) and a new frame is generated based on the previous one and the change that we want to make, if there is no change the same as before is returned.
+- Por un lado tenemos el estado (los datos).
+- Por otro lado tenemos acciones (que contiene un identificador y uno parámetro con información) que se lanzan utilizando un dispatcher.
+- Y esas acciones actualizan el estado en un reducer (un reducer es una función que acepta dos parametros el estado anterior y la acción, y te devuelve un nuevo estado)
+- ¿En qué consiste esto? En pensar que el estado actual es como el fotograma de una película, lo fijamos, nos llega una petición de cambio (con la acción) y se genera un nuevo fotograma en base al anterior y al cambio que se quiere hacer, si no hay cambio se devuelve el mismo que había antes.
 
-Let's first to define our _reducer_.
+Vamos primero a definir nuestro _reducer_
 
-- Taking average of the fact that we are working with ** TypeScript ** we are going to type our reducer and actions:
+- Aprovechando que estamos trabajando con **TypeScript** vamos a tipar
+  nuestro reducer y acciones:
 
 _./src/demo.tsx_
 
@@ -109,7 +112,7 @@ const actionIds = {
 };
 ```
 
-- And now Let's go to create our reducer.
+- Y ahora vamos a crear nuestro reducer
 
 _./src/demo.tsx_
 
@@ -132,9 +135,10 @@ const userInfoReducer = (state: UserState, action: Action): UserState => {
 };
 ```
 
-Let's now replace the _useState_ of our component with a _useReducer_ Let's see how it looks.
+- Vamos ahora sustituir el _useState_ de nuestro componente por un _useReducer_
+  veamos como queda.
 
-First we add the _useReducer_
+Primero añadimos el _useReducer_
 
 ```diff
 export const MyComponent = () => {
@@ -142,15 +146,24 @@ export const MyComponent = () => {
 +  const [userInfo, dispatch] = React.useReducer(userInfoReducer, {name: 'John', lastname: 'Doe'});
 ```
 
-On the one and _useReducer_ receives two parameters, the first is the function reducer that we created earlier, and the second is the intial state.
+**¿Cómo funciona esto?**
 
-On the other, it returns and array (as in _useState_), on this array we can do destructuring, on the one hand we bring the photo of the current state in the first element of the array, and for another it gives us a \ _dispatcher_, this dispatcher acts like a bus, it loads the action we give it and it is carried by the reducer function that updates the state.
+Por un lado _useReducer_ recibe dos parametros el primero es la funcion de
+reducer que hemos creado anteriormente, y el segundo es el estado inicial.
 
-Let's go to change the markup of the render and adapt it to use the state.
+Por otro devuelve un array (como en _useState_), sobre este array podemos
+hacer destructuring, por un lado nos traemos la foto del estado actual
+en el primer elemento del array, y por otro nos da un \_dispatcher\_,
+este dispatcher actua como un autobus, carga la acción que le demos
+y la lleva la función reducer que actualiza el estado.
 
-By having called _userInfo_ to the state we already have, we have saved ourselves work refactoring.
+Vamos a ir cambiando el markup del render y adaptandolo a que use el estado.
 
-On the other and we are going to change the input that is directly in the parent component.
+Al haber llamado _userInfo_ al state que ya tenemos nos hemos ahorrado trabajo
+de refactorizacion.
+
+Por otro lado vamos a cambiar el input que esta directamente en el componente
+padre:
 
 ```diff
 <input
@@ -164,11 +177,18 @@ On the other and we are going to change the input that is directly in the parent
 />
 ```
 
-Look at this change, I no longer directly change the _state_ using the _dispatch_, I pass the action type that I want to execute, including the data that changes, and this dispatch execute the _useReducer_ function.
+Fijaros en este cambio, yo ya no cambio directamente el _state_,
+mediante la función _dispatch_, yo le paso el tipo de acción
+que quiero ejecutar, incluyendo los datos que cambian, para que
+ese dispatch ejecuta la función de _useReducer_.
 
-Now comes the stronger change, update the child component, in this case we have to change the signature of the properties, we delegate to dispatch the changing information.
+Ahora viene el cambio más fuerte, actualizar el componente hijo,
+en este caso tenemos que cambiar la firma de las propiedades, delegamos en
+el dispatch el envío de la información que cambia.
 
-This in this example may seem a pointless change, but in one case complex in witch we can have a multitude of callbacks, we save pass them by property, having everything grouped in a single dispatch.
+Esto en este ejemplo puede parece un cambio sin sentido, pero en un caso
+complejo en el que podemos tener multitud de callbacks, nos ahorramos
+pasarlos por propiedad, teniendolo todo agrupado en un sólo dispatch.
 
 _./src/demo.tsx_
 
@@ -196,7 +216,7 @@ const EditUsername: React.FC<Props> = React.memo((props) => {
 });
 ```
 
-- Let's now update the parent component:
+- Vamos ahora actualizar el componente padre:
 
 _./src/demo.tsx_
 
@@ -213,18 +233,28 @@ _./src/demo.tsx_
       />
 ```
 
-If we execute this example we can see that the problem of rerender, why? Becouse the _dispatch_ function is not regenerated on every render.
+Si ejecutamos el ejemplo podemos ver que ya no se nos da el problema de
+rerender, ¿ Por qué? Porque la funcion _dispatch_ no se regenera en cada render.
 
-Use _useReducer_ in this example has been to killing flies with cannon shots, we have chosen a simple example to be able to learn how it works, what normal is that you use the complex cases where you have a rich state, and a lot of sub-component levels.
+Utilizar _useReducer_ en este ejemplo ha sido como matar moscas a cañonazos,
+hemos elegido un ejemplo sencillo para poder aprender como funciona, lo
+normal es que uses esto en casos complejos en los que tengas un estado rico,
+y un monton de niveles de subcomponentes.
 
-_useReducer_ is not a universal solution, and it has its disadventages, you are binding the signature of the properties of your component to a specific _dispatch_ and also launching actions this makes your components less promotables, it is going to be hareder to make them reusables. Yo have to choose ok where to stop using dispatch and use a conventional signature on components that you see that they can be reusable.
+_useReducer_ no es una solución universal, y tiene sus desventajas, estás
+atando la firma de las propiedas de tus componente a un _dispatch_ concreto
+y también lanzando acciones esto hace que tus componentes sean menos
+promocionables, va a ser más duro hacerlos reusables. Tienes que elegir
+bien donde parar de usar dispatch y usar una firma convencional en componentes
+que veas que pueden ser reusables.
 
-# About Basefactor + Lemoncode
+# ¿Te apuntas a nuestro máster?
 
-We are an innovating team of Javascript experts, passionate about turning your ideas into robust products.
+Si te ha gustado este ejemplo y tienes ganas de aprender Front End
+guiado por un grupo de profesionales ¿Por qué no te apuntas a
+nuestro [Máster Front End Online Lemoncode](https://lemoncode.net/master-frontend#inicio-banner)? Tenemos tanto edición de convocatoria
+con clases en vivo, como edición continua con mentorización, para
+que puedas ir a tu ritmo y aprender mucho.
 
-[Basefactor, consultancy by Lemoncode](http://www.basefactor.com) provides consultancy and coaching services.
-
-[Lemoncode](http://lemoncode.net/services/en/#en-home) provides training services.
-
-For the LATAM/Spanish audience we are running an Online Front End Master degree, more info: http://lemoncode.net/master-frontend
+Y si tienes ganas de meterte una zambullida en el mundo _devops_
+apuntate nuestro [Bootcamp devops online Lemoncode](https://lemoncode.net/bootcamp-devops#bootcamp-devops/inicio)
