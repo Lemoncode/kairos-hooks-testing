@@ -2,12 +2,9 @@
 
 ## Resumen
 
-Cuando usamos el _hook_ _useRef_ nos permite de una manera fácil poder mantener la referencia
-a un elemento del DOM (por ejemplo un _input_ o un _select_), y poder cambiar propiedades del mismo
-como por ejemplo asignarle el foco a ese elemento o cualquier otra.
+Cuando usamos el _hook_ _useRef_ nos permite de una manera fácil poder mantener la referencia a un elemento del DOM (por ejemplo un _input_ o un _select_), y poder cambiar propiedades del mismo como por ejemplo asignarle el foco a ese elemento o cualquier otra.
 
-Esto está genial si la referencia la tenemos dentro del mismo componente, pero ¿y si quisiéramos
-pasar esa referencia desde el componente padre? Las _ForwardRef_ nos pueden ser de gran ayuda.
+Esto está genial si la referencia la tenemos dentro del mismo componente, pero ¿y si quisiéramos pasar esa referencia desde el componente padre? Las _ForwardRef_ nos pueden ser de gran ayuda.
 
 Este ejemplo toma como punto de partida el ejemplo _00-boiler-plate_.
 
@@ -19,14 +16,11 @@ Este ejemplo toma como punto de partida el ejemplo _00-boiler-plate_.
 npm install
 ```
 
-En este ejemplo vamos a crearnos un componente que vamos a llamar _InputComponent_ en el que vamos a envolver un
-elemento _(HTML) input_.
+En este ejemplo vamos a crearnos un componente que vamos a llamar _InputComponent_ en el que vamos a envolver un elemento _(HTML) input_.
 
-Tenemos un requerimiento: cuando el usuario pulsa en un botón que se encuentra fuera del componente
-queremos darle el foco al elemento _input_ interno de nuestro _InputComponent_.
+Tenemos un requerimiento: cuando el usuario pulsa en un botón que se encuentra fuera del componente queremos darle el foco al elemento _input_ interno de nuestro _InputComponent_.
 
-Aquí tenemos un desafío, podemos tener un _ref_ al _input_ dentro de nuestro _InputComponent_, pero...
-nosotros queremos manejar esa referencia desde el componente padre, ¿qué podemos hacer? _ForwardRef_ al rescate.
+Aquí tenemos un desafío, podemos tener un _ref_ al _input_ dentro de nuestro _InputComponent_, pero... nosotros queremos manejar esa referencia desde el componente padre, ¿qué podemos hacer? _ForwardRef_ al rescate.
 
 Primero vamos a definir nuestro componente _InputComponent_
 
@@ -54,18 +48,18 @@ export const InputComponent: React.FC<InputProps> = (props) => {
 
 Vamos a añadir nuestro componente principal que instanciará dos _inputComponents_ y un botón:
 
-_./src/app.tsx_
+_./src/demo.tsx_
 
 ```tsx
 import React from "react";
 import { InputComponent } from "./common/input.component";
 
-export function App() {
+export function MyComponent() {
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
 
   return (
-    <div className="App">
+    <div>
       <InputComponent
         label="First name"
         value={firstName}
@@ -126,10 +120,10 @@ Segundo lo consumimos en el componente padre:
 - Por otro cuando instanciamos nuestro segundo _InputComponent_ le pasamos
   esa _ref_ por propiedad.
 
-_./src/app.tsx_
+_./src/demo.tsx_
 
 ```diff
-export function App() {
+export function MyComponent() {
 + const secondInputRef = React.useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
@@ -158,7 +152,7 @@ Ya sólo nos queda manejar esa referencia cuando el usuario pulse en el botón.
 _./src/app.tsx_
 
 ```diff
-export function App() {
+export function MyComponent() {
   const secondInputRef = React.useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
@@ -170,9 +164,9 @@ export function App() {
 + };
 
   return (
-    <div className="App">
+    <div>
       <InputComponent
-        label="Firt name"
+        label="First name"
         value={firstName}
         onChange={setFirstName}
       />
@@ -192,7 +186,7 @@ export function App() {
 Como vemos, esto no funciona, debido a que la propiedad [_ref_](https://reactjs.org/docs/refs-and-the-dom.html) es una propiedad
 nativa de los componentes de _React_, al igual que por ejemplo la propiedad [_key_](https://reactjs.org/docs/lists-and-keys.html).
 
-Tenemos el siguiente error:
+Si abrimos la consola podemos ver el siguiente error:
 
 ```
 react-dom.development.js?f8c1:86 Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
@@ -234,18 +228,18 @@ const InputComponent : React.FC<InputProps> = (props) => {
 
 ```
 
-_./src/app.tsx_
+_./src/demo.tsx_
 
 ```diff
-export default function App() {
+export default function MyComponent() {
   const secondInputRef = React.useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
 
   return (
-    <div className="App">
+    <div>
       <InputComponent
-        label="Firt name"
+        label="First name"
         value={firstName}
         onChange={setFirstName}
       />
@@ -309,13 +303,13 @@ Segundo, volvemos a actualizar el padre:
 _./src/app.tsx_
 
 ```diff
-export default function App() {
+export default function MyComponent() {
   const secondInputRef = React.useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
 
   return (
-    <div className="App">
+    <div>
       <InputComponent
         label="First name"
         value={firstName}
@@ -334,9 +328,7 @@ export default function App() {
 }
 ```
 
-Este ejemplo tal cual te puede parecer un caso un poco raro pero... ponte en el escenario en el que estás validando
-un formulario y el equipo de usabilidad te ha pedido poner el foco en el primer campo que tenga un error... ahora
-empieza todo a tener más sentido ¿Verdad?
+Este ejemplo tal cual te puede parecer un caso un poco raro pero... ponte en el escenario en el que estás validando un formulario y el equipo de usabilidad te ha pedido poner el foco en el primer campo que tenga un error... ahora empieza todo a tener más sentido ¿Verdad?
 
 # ¿Te apuntas a nuestro máster?
 

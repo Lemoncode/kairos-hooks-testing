@@ -1,21 +1,31 @@
 import React from "react";
+import { InputComponent } from "./common/input.component";
 
-export const MyComponent = () => {
-  const containerElementRef = React.useRef(null);
-  const [message, setMessage] = React.useState(
-    "Click button to get container width"
-  );
+export function MyComponent() {
+  const secondInputRef = React.useRef<HTMLInputElement>(null);
+  const [firstName, setFirstName] = React.useState("");
+  const [secondName, setSecondName] = React.useState("");
 
-  const calculateContainerWidth = () => {
-    setMessage(`Container width: ${containerElementRef.current.clientWidth}px`);
+  const handleSetFocus = () => {
+    if (secondInputRef.current) {
+      secondInputRef.current.focus();
+    }
   };
 
   return (
-    <div className="container" ref={containerElementRef}>
-      <h2>{message}</h2>
-      <button onClick={calculateContainerWidth}>
-        Calculate container width
-      </button>
+    <div>
+      <InputComponent
+        label="First name"
+        value={firstName}
+        onChange={setFirstName}
+      />
+      <InputComponent
+        ref={secondInputRef}
+        label="Second name"
+        value={secondName}
+        onChange={setSecondName}
+      />
+      <button onClick={handleSetFocus}>Set focus to second name</button>
     </div>
   );
-};
+}
