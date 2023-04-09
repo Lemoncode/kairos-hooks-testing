@@ -1,31 +1,38 @@
 import React from "react";
-import { InputComponent } from "./common/input.component";
+import { TwoInput } from "./common/twoinput.component";
 
 export function MyComponent() {
-  const secondInputRef = React.useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
-
-  const handleSetFocus = () => {
-    if (secondInputRef.current) {
-      secondInputRef.current.focus();
-    }
-  };
+  const inputARef = React.useRef(null);
+  const inputBRef = React.useRef(null);
 
   return (
     <div>
-      <InputComponent
-        label="First name"
-        value={firstName}
-        onChange={setFirstName}
+      <TwoInput
+        labelA="First name"
+        valueA={firstName}
+        onChangeA={setFirstName}
+        labelB="Second name"
+        valueB={secondName}
+        onChangeB={setSecondName}
+        inputRefA={inputARef}
+        inputRefB={inputBRef}
       />
-      <InputComponent
-        ref={secondInputRef}
-        label="Second name"
-        value={secondName}
-        onChange={setSecondName}
-      />
-      <button onClick={handleSetFocus}>Set focus to second name</button>
+      <button
+        onClick={() => {
+          if (inputARef.current) inputARef.current.focus();
+        }}
+      >
+        Set focus to first name
+      </button>
+      <button
+        onClick={() => {
+          if (inputBRef.current) inputBRef.current.focus();
+        }}
+      >
+        Set focus to second name
+      </button>
     </div>
   );
 }

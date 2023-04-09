@@ -52,18 +52,18 @@ export const TwoInput: React.FC<InputProps> = (props) => {
 
 - Y vamos a consumirlo en nuestra aplicación:
 
-_./src/app.tsx_
+_./src/demo.tsx_
 
 ```tsx
 import React from "react";
 import { TwoInput } from "./common/twoinput.component";
 
-export function App() {
+export function MyComponent() {
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
 
   return (
-    <div className="App">
+    <div>
       <TwoInput
         labelA="First name"
         valueA={firstName}
@@ -136,15 +136,17 @@ export const TwoInput : React.FC<InputProps> = (props) => {
 
 Y ahora en app, vamos a crear las referencias:
 
+_./src/demo.tsx_
+
 ```diff
-export function App() {
+export function MyComponent() {
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
 +  const inputARef = React.useRef(null);
 +  const inputBRef = React.useRef(null);
 
   return (
-    <div className="App">
+    <div>
       <TwoInput
         labelA="First name"
         valueA={firstName}
@@ -158,6 +160,8 @@ export function App() {
 ```
 
 Y vamos a añadir el comportamiento para que los botones pongan el foco en cada uno:
+
+_./src/demo.tsx_
 
 ```diff
     <button
