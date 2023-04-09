@@ -1,31 +1,18 @@
 import React from "react";
 
-interface UserContext {
-  username: string;
-  setUsername: (value: string) => void;
-}
+export const MyComponent: React.FC = () => {
+  const [numero, setNumero] = React.useState(0);
 
-const MyContext = React.createContext<UserContext>({
-  username: "",
-  setUsername: (value) => {},
-});
-
-export const MyContextProvider = (props) => {
-  const [username, setUsername] = React.useState("John Doe");
-
-  return (
-    <MyContext.Provider value={{ username, setUsername }}>
-      {props.children}
-    </MyContext.Provider>
-  );
-};
-
-export const MyComponent = () => {
-  const myContext = React.useContext(MyContext);
+  React.useEffect(() => {
+    setTimeout(() => {
+      setNumero((numero) => numero + 1);
+    }, 1500);
+    setNumero(1);
+  }, []);
 
   return (
     <>
-      <h3>{myContext.username}</h3>
+      <h4>El numero: {numero}</h4>
     </>
   );
 };

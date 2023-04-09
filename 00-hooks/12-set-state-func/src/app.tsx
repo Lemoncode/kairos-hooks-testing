@@ -1,10 +1,6 @@
 import React from "react";
-import { MyComponent, MyContextProvider } from "./demo";
+import { MyComponent } from "./demo";
 
 export const App = () => {
-  return (
-    <MyContextProvider>
-      <MyComponent />
-    </MyContextProvider>
-  );
+  return <MyComponent />;
 };
