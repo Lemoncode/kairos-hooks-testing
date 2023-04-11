@@ -134,7 +134,7 @@ We could create a jest config outside `package.json` to improve maintainability.
 ```js
 export default {
   rootDir: '../../',
-  verbose: false,
+  verbose: true,
 };
 
 ```
