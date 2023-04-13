@@ -2,22 +2,15 @@
 
 ## Resumen
 
-En un formulario real es muy normal mostrar u ocultar _markup_ dependiendo de qué opciones
-elijamos, es más, es normal que tengamos condiciones anidadas, si no llevamos cuidado
-esto puede hacer que nuestra aplicación se convierta en un caso de _markup_ y que
-sea muy difícil de mantener, el proceso que sigo cuando me encuentro con estos escenarios:
+En un formulario real es muy normal mostrar u ocultar _markup_ dependiendo de qué opciones elijamos, es más, es normal que tengamos condiciones anidadas, si no llevamos cuidado esto puede hacer que nuestra aplicación se convierta en un caso de _markup_ y que sea muy difícil de mantener, el proceso que sigo cuando me encuentro con estos escenarios:
 
 - Primero entender el problema.
-- Segundo empezar implementando sin preocuparme de optimizar, salvo que en ese paso
-  este muy claro.
+- Segundo empezar implementando sin preocuparme de optimizar, salvo que en ese paso este muy claro.
 - Conforme implemento y voy encontrando problemas o posibles mejoras, voy refactorizando, para ello:
   - _Componentizo_.
   - Veo que patrón de _conditional_ _rendering_ es el que mejor aplica.
-  - Estudio si alguno de los componentes se empieza a llenar de JS y complejidad y
-    en ese caso estudio si merece la pena extraer a _custom hooks_ funcionalidad bien
-    delimitada.
-  - Estudio si tanto en el componente como en el _hook_ hay código que puedo sacar
-    a ficheros TS planos (lo llamo lógica de negocio, el nombre el que mejor veáis).
+  - Estudio si alguno de los componentes se empieza a llenar de JS y complejidad y en ese caso estudio si merece la pena extraer a _custom hooks_ funcionalidad bien delimitada.
+  - Estudio si tanto en el componente como en el _hook_ hay código que puedo sacar a ficheros TS planos (lo llamo lógica de negocio, el nombre el que mejor veáis).
   - Sigo iterando.
 - Una vez que tengo la solución final, vuelvo a revisar y refactorizar lo que sea necesario.
 
@@ -25,12 +18,10 @@ Como resultado espero:
 
 - Un _markup_ que pueda leer como un libro.
 - Un _markup_ que me dé un nivel de abstracción y puede navegar al detalle de cada funcionalidad y me la encuentre encapsulada en un componente, y a su vez ese componente en subcomponentes.
-- Unos _custom hooks_ que tengan cada uno bien delimitada su responsabilidad, pueda probar,
-  e incluso puede que alguno pueda promocionar a común.
+- Unos _custom hooks_ que tengan cada uno bien delimitada su responsabilidad, pueda probar, e incluso puede que alguno pueda promocionar a común.
 - Un código plano en TS.
 
-En este ejemplo vamos a estudiar las opciones que tenemos para aplicar _rendering_
-condicional, más allá de la básica de _&&_
+En este ejemplo vamos a estudiar las opciones que tenemos para aplicar _rendering_ condicional, más allá de la básica de _&&_
 
 ## Paso a Paso
 
