@@ -811,7 +811,7 @@ export const updateTodoItem = async (item: TodoItem): Promise<TodoItem> => {
 
 Y a por la mutación:
 
-_./src/pages/todo/todo-query.tsx_
+_./src/pages/todo/todo-query.ts_
 
 ```diff
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -922,7 +922,7 @@ export const TodoPage: React.FC = () => {
 -  const { data } = useTodoListQuery();
 -  const updateMutation = useUpdateTodoItemMutation(handleSaveSuccess);
 -  const appendMutation = useAppendTodoItemMutation(handleSaveSuccess);
-+ const { data, updateMutation, appendMutation, handleSaveSuccess } = useTodoQueries();
++ const { data, updateMutation, appendMutation } = useTodoQueries();
 
   const [editingId, setEditingId] = React.useState(ReadOnlyMode);
 
