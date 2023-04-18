@@ -401,9 +401,7 @@ import * as calculator from './calculator';
 import * as business from './business/calculator.business';
 
 + jest.mock('./business/calculator.business', () => ({
-+   isLowerThan: jest.fn().mockImplementation(() => {
-+     console.log('Another implementation');
-+   }),
++   isLowerThan: jest.fn(),
 +   max: 7,
 + }));
 
