@@ -31,7 +31,6 @@ export const useTodoList = () => {
   };
 };
 
-
 export const TodoListPage: React.FC = () => {
   const { todoList, onUpdateTodo, onAppendTodo } = useTodoList();
   const [editingId, setEditingId] = React.useState(ReadOnlyMode);

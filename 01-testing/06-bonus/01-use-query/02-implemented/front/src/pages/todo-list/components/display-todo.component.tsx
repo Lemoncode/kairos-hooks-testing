@@ -12,8 +12,11 @@ export const DisplayTodo: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <span>{item.isDone ? '✅' : '⭕️'}</span>
-      <p>{item.description}</p>
+      <span aria-hidden>{item.isDone ? '✅' : '⭕️'}</span>
+      <span className="visually-hidden">
+        {item.isDone ? 'Todo completed' : 'Pending todo'}
+      </span>
+      <span>{item.description}</span>
       <button className={classes.editButton} onClick={() => onEdit(item.id)}>
         Edit
       </button>

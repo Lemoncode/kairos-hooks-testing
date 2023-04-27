@@ -13,7 +13,7 @@ export const DisplayTodo: React.FC<Props> = (props: Props) => {
   return (
     <>
       <span>{item.isDone ? '✅' : '⭕️'}</span>
-      <p>{item.description}</p>
+      <span>{item.description}</span>
       <button className={classes.editButton} onClick={() => onEdit(item.id)}>
         Edit
       </button>

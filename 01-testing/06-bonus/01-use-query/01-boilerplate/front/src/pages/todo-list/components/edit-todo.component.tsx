@@ -1,6 +1,6 @@
 import React from 'react';
 import * as model from '../todo-list.model';
-import classes from './edi-todo.module.css';
+import classes from './edit-todo.module.css';
 
 interface Props {
   item?: model.TodoItem;
@@ -17,9 +17,9 @@ export const EditTodo: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <label className={classes.done} htmlFor={`${item.id}`}>
+      <label className={classes.done} htmlFor={`${editItem.id}`}>
         <input
-          id={`${item.id}`}
+          id={`${editItem.id}`}
           type="checkbox"
           checked={editItem.isDone}
           onChange={(e) =>
