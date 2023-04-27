@@ -1,5 +1,3 @@
-
-
 export interface TodoItem {
   id: number;
   description: string;
@@ -8,6 +6,6 @@ export interface TodoItem {
 
 export const createEmptyTodoItem = (): TodoItem => ({
   id: 0,
-  description: "",
+  description: '',
   isDone: false,
 });

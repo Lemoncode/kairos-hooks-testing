@@ -1,14 +1,14 @@
 import React from 'react';
-import * as vm from '../todo-list.vm';
+import * as model from '../todo-list.model';
 import { EditTodo } from './edit-todo.component';
 import { DisplayTodo } from './display-todo.component';
 import classes from './todo-item.module.css';
 
 interface Props {
   editingId: number;
-  todo: vm.TodoItem;
+  todo: model.TodoItem;
   onEnableEditMode: (id: number) => void;
-  onUpdate: (item: vm.TodoItem) => void;
+  onUpdate: (item: model.TodoItem) => void;
   onCancel: () => void;
 }
 

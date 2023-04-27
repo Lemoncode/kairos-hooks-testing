@@ -1,4 +1,4 @@
-import { TodoItem } from './todo-list.vm';
+import { TodoItem } from './todo-list.model';
 
 const BASE_URL = 'http://localhost:3000/todos';
 

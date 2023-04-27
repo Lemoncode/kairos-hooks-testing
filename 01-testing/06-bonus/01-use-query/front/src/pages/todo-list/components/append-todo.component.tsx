@@ -1,13 +1,13 @@
 import React from 'react';
 import { AppendMode } from '../todo-list.constants';
-import { TodoItem } from '../todo-list.vm';
+import * as model from '../todo-list.model';
 import { EditTodo } from './edit-todo.component';
 import classes from './append-todo.module.css';
 
 interface Props {
   editingId: number;
   onEnableEditMode: () => void;
-  onAppend: (item: TodoItem) => void;
+  onAppend: (item: model.TodoItem) => void;
   onCancel: () => void;
 }
 

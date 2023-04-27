@@ -1,9 +1,9 @@
 import React from 'react';
-import { TodoItem } from '../todo-list.vm';
+import * as model from '../todo-list.model';
 import classes from './display-todo.module.css';
 
 interface Props {
-  item: TodoItem;
+  item: model.TodoItem;
   onEdit: (id: number) => void;
 }
 

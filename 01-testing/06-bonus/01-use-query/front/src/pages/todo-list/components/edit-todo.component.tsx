@@ -1,15 +1,15 @@
 import React from 'react';
-import { TodoItem, createEmptyTodoItem } from '../todo-list.vm';
+import * as model from '../todo-list.model';
 import classes from './edi-todo.module.css';
 
 interface Props {
-  item?: TodoItem;
-  onSave: (item: TodoItem) => void;
+  item?: model.TodoItem;
+  onSave: (item: model.TodoItem) => void;
   onCancel: () => void;
 }
 
-const itemOrDefault = (item: TodoItem) =>
-  item ? { ...item } : createEmptyTodoItem();
+const itemOrDefault = (item: model.TodoItem) =>
+  item ? { ...item } : model.createEmptyTodoItem();
 
 export const EditTodo: React.FC<Props> = (props: Props) => {
   const { item, onSave, onCancel } = props;

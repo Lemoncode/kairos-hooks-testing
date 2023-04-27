@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoItem, AppendTodo } from './components';
 import { ReadOnlyMode, AppendMode } from './todo-list.constants';
 import * as api from './todo-list.api';
-import * as vm from './todo-list.vm';
+import * as model from './todo-list.model';
 import classes from './todo-list.module.css';
 
 const QUERY_KEY = 'todoList';
@@ -36,12 +36,12 @@ export const TodoListPage: React.FC = () => {
   const { todoList, onUpdateTodo, onAppendTodo } = useTodoList();
   const [editingId, setEditingId] = React.useState(ReadOnlyMode);
 
-  const handleUpdate = (item: vm.TodoItem) => {
+  const handleUpdate = (item: model.TodoItem) => {
     onUpdateTodo(item);
     setEditingId(ReadOnlyMode);
   };
 
-  const handleAppend = (item: vm.TodoItem) => {
+  const handleAppend = (item: model.TodoItem) => {
     onAppendTodo(item);
     setEditingId(ReadOnlyMode);
   };
