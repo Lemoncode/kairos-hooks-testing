@@ -17,7 +17,7 @@ export const AppendTodo: React.FC<Props> = (props: Props) => {
   return (
     <>
       {editingId !== AppendMode ? (
-        <button onClick={onEnableEditMode}>Enter Insert New Item Node</button>
+        <button onClick={onEnableEditMode}>Add Item</button>
       ) : (
         <div className={classes.editTodo}>
           <EditTodo onSave={onAppend} onCancel={onCancel} />

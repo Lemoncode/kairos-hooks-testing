@@ -1,45 +1,48 @@
 import React from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { todoKeys } from './todo-key-queries';
-import {
-  useTodoListQuery,
-  useUpdateTodoItemMutation,
-  useAppendTodoItemMutation,
-} from './todo-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoItem, AppendTodo } from './components';
 import { ReadOnlyMode, AppendMode } from './todo-list.constants';
+import * as api from './todo-list.api';
 import * as vm from './todo-list.vm';
 import classes from './todo-list.module.css';
 
-const useTodoQueries = () => {
-  const handleSaveSuccess = () => {
-    queryClient.invalidateQueries(todoKeys.todoList());
-  };
+const QUERY_KEY = 'todoList';
+
+export const useTodoList = () => {
+  const { data: todoList } = useQuery([QUERY_KEY], api.getTodoList);
 
   const queryClient = useQueryClient();
-  const { data } = useTodoListQuery();
-  const updateMutation = useUpdateTodoItemMutation(handleSaveSuccess);
-  const appendMutation = useAppendTodoItemMutation(handleSaveSuccess);
+  const handleSaveSuccess = () => {
+    queryClient.invalidateQueries([QUERY_KEY]);
+  };
+
+  const { mutate: handleUpdateTodo } = useMutation(api.updateTodoItem, {
+    onSuccess: handleSaveSuccess,
+  });
+
+  const { mutate: handleAppendTodo } = useMutation(api.appendTodoItem, {
+    onSuccess: handleSaveSuccess,
+  });
 
   return {
-    data,
-    updateMutation,
-    appendMutation,
-    handleSaveSuccess,
+    todoList,
+    onUpdateTodo: handleUpdateTodo,
+    onAppendTodo: handleAppendTodo,
   };
 };
 
+
 export const TodoListPage: React.FC = () => {
-  const { data, updateMutation, appendMutation } = useTodoQueries();
+  const { todoList, onUpdateTodo, onAppendTodo } = useTodoList();
   const [editingId, setEditingId] = React.useState(ReadOnlyMode);
 
   const handleUpdate = (item: vm.TodoItem) => {
-    updateMutation.mutate(item);
+    onUpdateTodo(item);
     setEditingId(ReadOnlyMode);
   };
 
   const handleAppend = (item: vm.TodoItem) => {
-    appendMutation.mutate(item);
+    onAppendTodo(item);
     setEditingId(ReadOnlyMode);
   };
 
@@ -48,9 +51,9 @@ export const TodoListPage: React.FC = () => {
   };
 
   return (
-    <>
+    <main>
       <ul className={classes.todoList}>
-        {data?.map((todo) => (
+        {todoList?.map((todo) => (
           <li key={todo.id}>
             <TodoItem
               todo={todo}
@@ -68,6 +71,6 @@ export const TodoListPage: React.FC = () => {
         onAppend={handleAppend}
         onCancel={() => setEditingId(ReadOnlyMode)}
       />
-    </>
+    </main>
   );
 };

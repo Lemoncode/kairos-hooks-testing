@@ -1,21 +1,22 @@
-import React from "react";
-import { TodoItem } from "../todo-list.vm";
+import React from 'react';
+import { TodoItem } from '../todo-list.vm';
+import classes from './display-todo.module.css';
 
 interface Props {
   item: TodoItem;
   onEdit: (id: number) => void;
 }
 
-export const DisplayTodo: React.FC<Props> = (props : Props) => {
+export const DisplayTodo: React.FC<Props> = (props: Props) => {
   const { item, onEdit } = props;
 
   return (
     <>
-      <div>{item.isDone ? "✅" : "⭕️"}</div>
-      <div>{item.description}</div>
-      <div>
-        <button onClick={() => onEdit(item.id)}>Edit</button>
-      </div>
+      <span>{item.isDone ? '✅' : '⭕️'}</span>
+      <p>{item.description}</p>
+      <button className={classes.editButton} onClick={() => onEdit(item.id)}>
+        Edit
+      </button>
     </>
   );
 };
