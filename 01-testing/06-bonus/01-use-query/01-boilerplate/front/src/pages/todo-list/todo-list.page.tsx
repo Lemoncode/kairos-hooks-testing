@@ -8,7 +8,7 @@ import classes from './todo-list.module.css';
 
 const QUERY_KEY = 'todoList';
 
-export const useTodoList = () => {
+const useTodoList = () => {
   const { data: todoList } = useQuery([QUERY_KEY], api.getTodoList);
 
   const queryClient = useQueryClient();

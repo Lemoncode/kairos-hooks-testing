@@ -4,6 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as api from './todo-list.api';
 import * as model from './todo-list.model';
+import * as hooks from './todo-list.hooks';
 import { TodoListPage } from './todo-list.page';
 
 export const queryClient = new QueryClient({
@@ -157,5 +158,35 @@ describe('TodoListPage specs', () => {
     });
     expect(newListItem).toHaveLength(3);
     expect(within(newListItem[2]).getByText('Apples')).toBeInTheDocument();
+  });
+
+  it('should display a todo list with two items when it calls to useTodoList', () => {
+    // Arrange
+    const todoList: model.TodoItem[] = [
+      { id: 1, description: 'Lemons', isDone: true },
+      { id: 2, description: 'Oranges', isDone: false },
+    ];
+    const onUpdateTodoSpy = jest.fn();
+    const onAppendTodoSpy = jest.fn();
+
+    const useTodoListStub = jest.spyOn(hooks, 'useTodoList').mockReturnValue({
+      todoList,
+      onUpdateTodo: onUpdateTodoSpy,
+      onAppendTodo: onAppendTodoSpy,
+    });
+
+    // Act
+    render(<TodoListPage />);
+
+    const listItems = screen.queryAllByRole('listitem');
+
+    // Assert
+    expect(useTodoListStub).toHaveBeenCalled();
+    expect(
+      within(listItems[0]).getByText('Todo completed')
+    ).toBeInTheDocument();
+    expect(within(listItems[0]).getByText('Lemons')).toBeInTheDocument();
+    expect(within(listItems[1]).getByText('Pending todo')).toBeInTheDocument();
+    expect(within(listItems[1]).getByText('Oranges')).toBeInTheDocument();
   });
 });

@@ -339,6 +339,168 @@ Append new todo item:
 });
 ```
 
+But the most common scenario in a real world application is that we have a separate file for the useTodoList hook:
+
+_./src/pages/todo-list/todo-list.hooks.ts_
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as api from "./todo-list.api";
+
+const QUERY_KEY = "todoList";
+
+export const useTodoList = () => {
+  const { data: todoList } = useQuery([QUERY_KEY], api.getTodoList);
+
+  const queryClient = useQueryClient();
+  const handleSaveSuccess = () => {
+    queryClient.invalidateQueries([QUERY_KEY]);
+  };
+
+  const { mutate: handleUpdateTodo } = useMutation(api.updateTodoItem, {
+    onSuccess: handleSaveSuccess,
+  });
+
+  const { mutate: handleAppendTodo } = useMutation(api.appendTodoItem, {
+    onSuccess: handleSaveSuccess,
+  });
+
+  return {
+    todoList,
+    onUpdateTodo: handleUpdateTodo,
+    onAppendTodo: handleAppendTodo,
+  };
+};
+```
+
+_./src/pages/todo-list/todo-list.page.tsx_
+
+```diff
+import React from 'react';
+- import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { TodoItem, AppendTodo } from './components';
+import { ReadOnlyMode, AppendMode } from './todo-list.constants';
++ import { useTodoList } from './todo-list.hooks';
+- import * as api from './todo-list.api';
+import * as model from './todo-list.model';
+import classes from './todo-list.module.css';
+
+- const QUERY_KEY = 'todoList';
+
+- const useTodoList = () => {
+-   const { data: todoList } = useQuery([QUERY_KEY], api.getTodoList);
+
+-   const queryClient = useQueryClient();
+-   const handleSaveSuccess = () => {
+-     queryClient.invalidateQueries([QUERY_KEY]);
+-   };
+
+-   const { mutate: handleUpdateTodo } = useMutation(api.updateTodoItem, {
+-     onSuccess: handleSaveSuccess,
+-   });
+
+-   const { mutate: handleAppendTodo } = useMutation(api.appendTodoItem, {
+-     onSuccess: handleSaveSuccess,
+-   });
+
+-   return {
+-     todoList,
+-     onUpdateTodo: handleUpdateTodo,
+-     onAppendTodo: handleAppendTodo,
+-   };
+- };
+
+export const TodoListPage: React.FC = () => {
+...
+
+```
+
+The current specs are still passing but now we can test the component in a simpler way:
+
+_./src/pages/todo-list/todo-list.page.spec.tsx_
+
+```diff
+...
++ it('should display a todo list with two items when it calls to useTodoList', () => {
++   // Arrange
++   const todoList: model.TodoItem[] = [
++     { id: 1, description: 'Lemons', isDone: true },
++     { id: 2, description: 'Oranges', isDone: false },
++   ];
++   const onUpdateTodoSpy = jest.fn();
++   const onAppendTodoSpy = jest.fn();
+
++   const useTodoListStub = jest.spyOn(hooks, 'useTodoList').mockReturnValue({
++     todoList,
++     onUpdateTodo: onUpdateTodoSpy,
++     onAppendTodo: onAppendTodoSpy,
++   });
+
++   // Act
++   render(<TodoListPage />);
+
++   const listItems = screen.queryAllByRole('listitem');
+
++   // Assert
++   expect(useTodoListStub).toHaveBeenCalled();
++   expect(
++     within(listItems[0]).getByText('Todo completed')
++   ).toBeInTheDocument();
++   expect(within(listItems[0]).getByText('Lemons')).toBeInTheDocument();
++   expect(within(listItems[1]).getByText('Pending todo')).toBeInTheDocument();
++   expect(within(listItems[1]).getByText('Oranges')).toBeInTheDocument();
++ });
+});
+```
+
+And move the rest of the `react-query` dependency to the hooks spec file:
+
+_./src/pages/todo-list/todo-list.hooks.spec.tsx_
+
+```typescript
+import React from "react";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
+import * as api from "./todo-list.api";
+import * as model from "./todo-list.model";
+import { useTodoList } from "./todo-list.hooks";
+
+export const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+  logger: {
+    log: console.log,
+    warn: console.warn,
+    error: () => {},
+  },
+});
+
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
+describe("useTodoList specs", () => {
+  it("should display a todo list with two items when it loads data from API", async () => {
+    // Arrange
+    const todoList: model.TodoItem[] = [
+      { id: 1, description: "Lemons", isDone: true },
+      { id: 2, description: "Oranges", isDone: false },
+    ];
+    const getTodoListStub = jest
+      .spyOn(api, "getTodoList")
+      .mockResolvedValue(todoList);
+
+    // Act
+    const { result } = renderHook(() => useTodoList(), { wrapper });
+
+    // Assert
+    expect(getTodoListStub).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.todoList).toEqual(todoList);
+    });
+  });
+});
+```
+
 # About Basefactor + Lemoncode
 
 We are an innovating team of Javascript experts, passionate about turning your ideas into robust products.
