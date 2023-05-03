@@ -27,3 +27,9 @@ export const appendTodoItem = async (item: TodoItem): Promise<void> => {
     body: JSON.stringify(item),
   });
 };
+
+export const getArchivedTodoList = async (): Promise<TodoItem[]> => {
+  const response = await fetch('http://localhost:3000/archived-todos');
+  const data = await response.json();
+  return data;
+};

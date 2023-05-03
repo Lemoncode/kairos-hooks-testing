@@ -1,18 +1,4 @@
 {
-  "lists": [
-    {
-      "id": 1,
-      "name": "test list"
-    },
-    {
-      "id": 2,
-      "name": "groceries"
-    },
-    {
-      "id": 3,
-      "name": "tasks"
-    }
-  ],
   "todos": [
     {
       "id": 1,
@@ -68,6 +54,23 @@
       "id": 11,
       "description": "ice-cream",
       "isDone": false
+    }
+  ],
+  "archived-todos": [
+    {
+      "id": 100,
+      "description": "archived todo 1",
+      "isDone": true
+    },
+    {
+      "id": 101,
+      "description": "archived todo 2",
+      "isDone": true
+    },
+    {
+      "id": 102,
+      "description": "archived todo 3",
+      "isDone": true
     }
   ]
 }

@@ -7,18 +7,19 @@ import * as model from './todo-list.model';
 import * as hooks from './todo-list.hooks';
 import { TodoListPage } from './todo-list.page';
 
-export const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-  logger: {
-    log: console.log,
-    warn: console.warn,
-    error: () => {},
-  },
-});
-const renderWithQuery = (component) =>
-  render(
+const renderWithQuery = (component) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+    logger: {
+      log: console.log,
+      warn: console.warn,
+      error: () => {},
+    },
+  });
+  return render(
     <QueryClientProvider client={queryClient}>{component}</QueryClientProvider>
   );
+};
 
 describe('TodoListPage specs', () => {
   it('should display an empty todo list and button to add new item on init', () => {
@@ -28,37 +29,83 @@ describe('TodoListPage specs', () => {
     renderWithQuery(<TodoListPage />);
 
     // Assert
-    expect(screen.getByRole('list')).toBeInTheDocument();
+    const [todoListElement, archivedTodoListElement] =
+      screen.getAllByRole('list');
+
+    expect(todoListElement).toBeInTheDocument();
+    expect(archivedTodoListElement).toBeInTheDocument();
     expect(screen.queryAllByRole('listitem')).toHaveLength(0);
     expect(
       screen.getByRole('button', { name: /add item/i })
     ).toBeInTheDocument();
   });
 
-  it('should display a todo list with two items when it loads data from API', async () => {
+  it(`should display a todo list with two items and arhived todo list with three items when
+   it loads data from API`, async () => {
     // Arrange
     const todoList: model.TodoItem[] = [
       { id: 1, description: 'Lemons', isDone: true },
       { id: 2, description: 'Oranges', isDone: false },
+    ];
+    const archivedTodoList: model.TodoItem[] = [
+      { id: 3, description: 'Eggs', isDone: true },
+      { id: 4, description: 'Oil', isDone: true },
+      { id: 5, description: 'Tuna', isDone: true },
     ];
 
     const getTodoListStub = jest
       .spyOn(api, 'getTodoList')
       .mockResolvedValue(todoList);
 
+    const getArchivedTodoListStub = jest
+      .spyOn(api, 'getArchivedTodoList')
+      .mockResolvedValue(archivedTodoList);
+
     // Act
     renderWithQuery(<TodoListPage />);
 
-    const listItems = await screen.findAllByRole('listitem');
+    const [todoListElement, archivedTodoListElement] =
+      screen.getAllByRole('list');
+
+    const todoListItems = await within(todoListElement).findAllByRole(
+      'listitem'
+    );
+    const archivedTodoListItems = await within(
+      archivedTodoListElement
+    ).findAllByRole('listitem');
 
     // Assert
     expect(getTodoListStub).toHaveBeenCalled();
+    expect(todoListItems).toHaveLength(2);
     expect(
-      within(listItems[0]).getByText('Todo completed')
+      within(todoListItems[0]).getByText('Todo completed')
     ).toBeInTheDocument();
-    expect(within(listItems[0]).getByText('Lemons')).toBeInTheDocument();
-    expect(within(listItems[1]).getByText('Pending todo')).toBeInTheDocument();
-    expect(within(listItems[1]).getByText('Oranges')).toBeInTheDocument();
+    expect(within(todoListItems[0]).getByText('Lemons')).toBeInTheDocument();
+    expect(
+      within(todoListItems[1]).getByText('Pending todo')
+    ).toBeInTheDocument();
+    expect(within(todoListItems[1]).getByText('Oranges')).toBeInTheDocument();
+
+    expect(getArchivedTodoListStub).toHaveBeenCalled();
+    expect(archivedTodoListItems).toHaveLength(3);
+    expect(
+      within(archivedTodoListItems[0]).getByText('Todo completed')
+    ).toBeInTheDocument();
+    expect(
+      within(archivedTodoListItems[0]).getByText('Eggs')
+    ).toBeInTheDocument();
+    expect(
+      within(archivedTodoListItems[1]).getByText('Todo completed')
+    ).toBeInTheDocument();
+    expect(
+      within(archivedTodoListItems[1]).getByText('Oil')
+    ).toBeInTheDocument();
+    expect(
+      within(archivedTodoListItems[2]).getByText('Todo completed')
+    ).toBeInTheDocument();
+    expect(
+      within(archivedTodoListItems[2]).getByText('Tuna')
+    ).toBeInTheDocument();
   });
 
   it('should update the second item when it calls to onUpdateTodo', async () => {
@@ -109,7 +156,7 @@ describe('TodoListPage specs', () => {
     expect(within(secondItem).getByText('Todo completed')).toBeInTheDocument();
   });
 
-  it('should add a thidr item when it calls to onAppendTodo', async () => {
+  it('should add a third item when it calls to onAppendTodo', async () => {
     // Arrange
     const newTodo: model.TodoItem = {
       id: 3,
@@ -173,6 +220,7 @@ describe('TodoListPage specs', () => {
       todoList,
       onUpdateTodo: onUpdateTodoSpy,
       onAppendTodo: onAppendTodoSpy,
+      archivedTodoList: [],
     });
 
     // Act

@@ -6,7 +6,8 @@ import * as model from './todo-list.model';
 import classes from './todo-list.module.css';
 
 export const TodoListPage: React.FC = () => {
-  const { todoList, onUpdateTodo, onAppendTodo } = useTodoList();
+  const { todoList, onUpdateTodo, onAppendTodo, archivedTodoList } =
+    useTodoList();
   const [editingId, setEditingId] = React.useState(ReadOnlyMode);
 
   const handleUpdate = (item: model.TodoItem) => {
@@ -44,6 +45,20 @@ export const TodoListPage: React.FC = () => {
         onAppend={handleAppend}
         onCancel={() => setEditingId(ReadOnlyMode)}
       />
+      <h2>Archived</h2>
+      <ul className={classes.todoList}>
+        {archivedTodoList?.map((todo) => (
+          <li key={todo.id}>
+            <TodoItem
+              todo={todo}
+              editingId={editingId}
+              onEnableEditMode={setEditingId}
+              onUpdate={handleUpdate}
+              onCancel={handleCancel}
+            />
+          </li>
+        ))}
+      </ul>
     </main>
   );
 };
