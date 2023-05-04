@@ -237,4 +237,64 @@ describe('TodoListPage specs', () => {
     expect(within(listItems[1]).getByText('Pending todo')).toBeInTheDocument();
     expect(within(listItems[1]).getByText('Oranges')).toBeInTheDocument();
   });
+
+  it('should update the second item when it calls to onUpdateTodo mocking useTodoList', async () => {
+    // Arrange
+    const todoList: model.TodoItem[] = [
+      { id: 1, description: 'Lemons', isDone: true },
+      { id: 2, description: 'Oranges', isDone: false },
+    ];
+    const updateTodoList: model.TodoItem[] = [
+      { id: 1, description: 'Lemons', isDone: true },
+      { id: 2, description: 'Oranges', isDone: true },
+    ];
+    const onUpdateTodoSpy = jest.fn();
+    const onAppendTodoSpy = jest.fn();
+
+    const useTodoListStub = jest
+      .spyOn(hooks, 'useTodoList')
+      .mockReturnValueOnce({
+        todoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
+        archivedTodoList: [],
+      })
+      .mockReturnValueOnce({
+        todoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
+        archivedTodoList: [],
+      })
+      .mockReturnValueOnce({
+        todoList: updateTodoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
+        archivedTodoList: [],
+      });
+    // Act
+    renderWithQuery(<TodoListPage />);
+
+    const listItems = screen.getAllByRole('listitem');
+    const secondItem = listItems[1];
+    expect(within(secondItem).getByText('Pending todo')).toBeInTheDocument();
+
+    await userEvent.click(
+      within(secondItem).getByRole('button', { name: /edit/i })
+    );
+    const isDoneCheckbox = within(secondItem).getByRole('checkbox');
+    await userEvent.click(isDoneCheckbox);
+    await userEvent.click(
+      within(secondItem).getByRole('button', { name: /save/i })
+    );
+
+    // Assert
+    expect(useTodoListStub).toHaveBeenCalled();
+    expect(useTodoListStub).toHaveBeenCalledTimes(3);
+    expect(onUpdateTodoSpy).toHaveBeenCalledWith({
+      id: 2,
+      description: 'Oranges',
+      isDone: true,
+    });
+    expect(within(secondItem).getByText('Todo completed')).toBeInTheDocument();
+  });
 });
