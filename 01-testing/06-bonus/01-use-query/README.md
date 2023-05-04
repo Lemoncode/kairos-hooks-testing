@@ -187,7 +187,7 @@ export const DisplayTodo: React.FC<Props> = (props: Props) => {
   return (
     <>
 -     <span>{item.isDone ? '✅' : '⭕️'}</span>
-+     <span aria-hidden>{item.isDone ? '✅' : '⭕️'}</span>
++     <span aria-hidden="true">{item.isDone ? '✅' : '⭕️'}</span>
 +     <span className="visually-hidden">
 +       {item.isDone ? 'Todo completed' : 'Pending todo'}
 +     </span>
@@ -299,8 +299,7 @@ Append new todo item:
 +     { id: 2, description: 'Oranges', isDone: false },
 +   ];
 +   const updatedTodoList: model.TodoItem[] = [
-+     { id: 1, description: 'Lemons', isDone: true },
-+     { id: 2, description: 'Oranges', isDone: true },
++     ...todoList,
 +     { ...newTodo },
 +   ];
 
@@ -453,6 +452,72 @@ _./src/pages/todo-list/todo-list.page.spec.tsx_
 + });
 });
 ```
+
+If we want to test the updateTodo scenario we can do it in a similar way:
+
+_./src/pages/todo-list/todo-list.page.spec.tsx_
+
+```diff
+...
++ it('should update the second item when it calls to onUpdateTodo mocking useTodoList', async () => {
++     // Arrange
++     const todoList: model.TodoItem[] = [
++       { id: 1, description: 'Lemons', isDone: true },
++       { id: 2, description: 'Oranges', isDone: false },
++     ];
++     const updateTodoList: model.TodoItem[] = [
++       { id: 1, description: 'Lemons', isDone: true },
++       { id: 2, description: 'Oranges', isDone: true },
++     ];
++     const onUpdateTodoSpy = jest.fn();
++     const onAppendTodoSpy = jest.fn();
+
++     const useTodoListStub = jest
++       .spyOn(hooks, 'useTodoList')
++       .mockReturnValueOnce({
++         todoList,
++         onUpdateTodo: onUpdateTodoSpy,
++         onAppendTodo: onAppendTodoSpy,
++       })
++       .mockReturnValueOnce({
++         todoList,
++         onUpdateTodo: onUpdateTodoSpy,
++         onAppendTodo: onAppendTodoSpy,
++       })
++       .mockReturnValueOnce({
++         todoList: updateTodoList,
++         onUpdateTodo: onUpdateTodoSpy,
++         onAppendTodo: onAppendTodoSpy,
++       });
++     // Act
++     renderWithQuery(<TodoListPage />);
+
++     const listItems = screen.getAllByRole('listitem');
++     const secondItem = listItems[1];
++     expect(within(secondItem).getByText('Pending todo')).toBeInTheDocument();
+
++     await userEvent.click(
++       within(secondItem).getByRole('button', { name: /edit/i })
++     );
++     const isDoneCheckbox = within(secondItem).getByRole('checkbox');
++     await userEvent.click(isDoneCheckbox);
++     await userEvent.click(
++       within(secondItem).getByRole('button', { name: /save/i })
++     );
+
++     // Assert
++     expect(useTodoListStub).toHaveBeenCalled();
++     expect(useTodoListStub).toHaveBeenCalledTimes(3);
++     expect(onUpdateTodoSpy).toHaveBeenCalledWith({
++       id: 2,
++       description: 'Oranges',
++       isDone: true,
++     });
++     expect(within(secondItem).getByText('Todo completed')).toBeInTheDocument();
++   });
+});
+```
+
 
 And move the rest of the `react-query` dependency to the hooks spec file:
 
@@ -673,6 +738,66 @@ describe('TodoListPage specs', () => {
     expect(within(listItems[0]).getByText('Lemons')).toBeInTheDocument();
     expect(within(listItems[1]).getByText('Pending todo')).toBeInTheDocument();
     expect(within(listItems[1]).getByText('Oranges')).toBeInTheDocument();
+  });
+
+  it('should update the second item when it calls to onUpdateTodo mocking useTodoList', async () => {
+    // Arrange
+    const todoList: model.TodoItem[] = [
+      { id: 1, description: 'Lemons', isDone: true },
+      { id: 2, description: 'Oranges', isDone: false },
+    ];
+    const updateTodoList: model.TodoItem[] = [
+      { id: 1, description: 'Lemons', isDone: true },
+      { id: 2, description: 'Oranges', isDone: true },
+    ];
+    const onUpdateTodoSpy = jest.fn();
+    const onAppendTodoSpy = jest.fn();
+    // stub
+    const useTodoListStub = jest
+      .spyOn(hooks, 'useTodoList')
+      .mockReturnValueOnce({
+        todoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
++       archivedTodoList: [],
+      })
+      .mockReturnValueOnce({
+        todoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
++       archivedTodoList: [],
+      })
+      .mockReturnValueOnce({
+        todoList: updateTodoList,
+        onUpdateTodo: onUpdateTodoSpy,
+        onAppendTodo: onAppendTodoSpy,
++       archivedTodoList: [],
+      });
+    // Act
+    renderWithQuery(<TodoListPage />);
+
+    const listItems = screen.getAllByRole('listitem');
+    const secondItem = listItems[1];
+    expect(within(secondItem).getByText('Pending todo')).toBeInTheDocument();
+
+    await userEvent.click(
+      within(secondItem).getByRole('button', { name: /edit/i })
+    );
+    const isDoneCheckbox = within(secondItem).getByRole('checkbox');
+    await userEvent.click(isDoneCheckbox);
+    await userEvent.click(
+      within(secondItem).getByRole('button', { name: /save/i })
+    );
+
+    // Assert
+    expect(useTodoListStub).toHaveBeenCalled();
+    expect(useTodoListStub).toHaveBeenCalledTimes(3);
+    expect(onUpdateTodoSpy).toHaveBeenCalledWith({
+      id: 2,
+      description: 'Oranges',
+      isDone: true,
+    });
+    expect(within(secondItem).getByText('Todo completed')).toBeInTheDocument();
   });
 });
 
